@@ -156,6 +156,11 @@ module S3
       headers[:x_amz_copy_source_if_unmodified_since] = options[:if_modified_since] if options[:if_modified_since]
       headers[:x_amz_copy_source_if_modified_since] = options[:if_unmodified_since] if options[:if_unmodified_since]
 
+      server_side_encryption = options.has_key?(:server_side_encryption) ? options[:server_side_encryption] : S3.server_side_encryption
+      # default to AES256 if set to true
+      server_side_encryption = 'AES256' if server_side_encryption == true
+      headers[:x_amz_server_side_encryption] = server_side_encryption if server_side_encryption      
+
       response = bucket.send(:bucket_request, :put, :path => key, :headers => headers)
       object_attributes = parse_copy_object_result(response.body)
 
